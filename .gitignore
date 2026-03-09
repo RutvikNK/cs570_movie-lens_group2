@@ -208,3 +208,9 @@ __marimo__/
 .DS_Store
 scripts/
 cs570/
+
+# Plots
+*.png
+*.pdf
+*.jpg
+*.jpeg
