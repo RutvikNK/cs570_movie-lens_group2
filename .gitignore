@@ -214,3 +214,6 @@ cs570/
 *.pdf
 *.jpg
 *.jpeg
+
+# Specs
+specs/
