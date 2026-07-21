@@ -45,7 +45,9 @@ the other attribute. We therefore introduce \emph{intersectional} threshold cali
 which sets a decision threshold per gender$\times$age cell and reduces \emph{both} the
 gender and age gaps together (DPD $0.038\rightarrow0.001$ and $0.145\rightarrow0.003$) at
 a $0.21$-point accuracy cost. All headline results are validated across eight random
-splits with paired significance tests. Our findings argue that fairness must be measured
+splits with paired significance tests, and replicate on an independent second dataset
+(MovieLens 100K), where the substantial age gap (DI $0.76$), the unawareness backfire, and
+the intersectional fix all recur. Our findings argue that fairness must be measured
 and mitigated per attribute---jointly, not one at a time---that dropping protected
 features is insufficient, and that leakage-aware evaluation is a precondition for
 trustworthy fairness claims.
@@ -105,8 +107,9 @@ artifacts.
   and show it reduces both gender and age disparity together at a small accuracy cost
   (\S\ref{sec:mitigation}).
   \item We validate all headline results across eight random splits with paired
-  $t$- and Wilcoxon tests, and release a reproducible Spark notebook
-  (\S\ref{sec:setup}, \S\ref{sec:mitigation}).
+  $t$- and Wilcoxon tests, and replicate them on an independent second dataset
+  (MovieLens 100K), releasing a reproducible Spark notebook
+  (\S\ref{sec:setup}, \S\ref{sec:mitigation}, \S\ref{sec:generalization}).
 \end{itemize}
 
 \section{Related Work}\label{sec:related}
@@ -375,6 +378,61 @@ calibration reaches near-zero DPD at a small accuracy cost.}
 \label{fig:tradeoff}
 \end{figure}
 
+\section{Generalization to a Second Dataset}\label{sec:generalization}
+To test whether the findings are specific to MovieLens 1M, we repeated the entire
+study---leakage-corrected retraining, audit, all mitigations, and the eight-seed
+significance protocol---on \emph{MovieLens 100K}, an independent collection gathered in
+1998 from $943$ different users ($100{,}000$ ratings). It is, to our knowledge, the only
+other widely used public rating dataset that still ships per-user gender \emph{and} age,
+so it supports the full pipeline including the intersectional method; later MovieLens
+releases omit demographics. We mapped its integer ages into the same seven bands and
+indexed its occupation strings, leaving every feature and metric identical.
+
+Table~\ref{tab:generalization} places the two datasets side by side and
+Fig.~\ref{fig:datasetcompare} visualizes the age result. Every qualitative conclusion
+recurs: the baseline hides a \emph{substantial age gap} (DPD $0.161$, DI $0.76$, even
+below the 1M value and past the four-fifths line); fairness through unawareness again
+\emph{significantly worsens} it ($0.161\rightarrow0.275$, $p=2.5\times10^{-8}$);
+single-attribute gender thresholding again \emph{does not transfer} to age
+($p=0.88$); and intersectional calibration again closes \emph{both} gaps (gender
+$\rightarrow0.001$, age $\rightarrow0.005$, $p_{\text{age}}=2\times10^{-6}$) at a
+$0.2$-point accuracy cost. One difference is instructive: 100K's baseline gender gap is
+already near zero (DPD $0.006$, DI $0.99$), so the gender reduction, though still
+significant ($p=0.011$), is small---there was little gender disparity to remove. This
+reinforces rather than weakens the thesis: on both datasets \emph{age}, not gender, is the
+attribute where a high-accuracy model quietly under-serves a group. The 100K age gap also
+carries larger cross-seed variance ($\pm0.035$ vs $\pm0.005$), consistent with its
+$10\times$ smaller size.
+
+\begin{table}[t]
+\caption{Cross-dataset replication (mean over eight seeds). Every qualitative finding
+recurs on the independent MovieLens 100K collection.}
+\label{tab:generalization}
+\centering
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcc}
+\toprule
+Quantity (DPD unless noted) & ML-1M & ML-100K \\
+\midrule
+Baseline accuracy               & $0.718$ & $0.701$ \\
+Baseline gender DPD             & $0.038$ & $0.006$ \\
+Baseline age DPD / DI          & $0.145$ / $0.80$ & $0.161$ / $0.76$ \\
+Feature-removal age DPD        & $0.213$ & $0.275$ \\
+Gender-threshold age DPD       & $0.145$ & $0.161$ \\
+Intersectional gender DPD      & $0.001$ & $0.001$ \\
+Intersectional age DPD         & $0.003$ & $0.005$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.86\linewidth]{fig_dataset_compare.png}
+\caption{The substantial baseline age gap and its intersectional fix replicate on the
+independent MovieLens 100K dataset (mean$\pm$std over eight seeds).}
+\label{fig:datasetcompare}
+\end{figure}
+
 \section{Discussion, Limitations, and Threats to Validity}\label{sec:discussion}
 \textbf{Interpretation.} The audit yields four transferable lessons: (i) a single
 aggregate metric can be simultaneously acceptable and misleading---here gender looks
@@ -392,9 +450,12 @@ test rows), so it may not scale to many fine-grained attributes without regulari
 smoothed thresholds. Per-group thresholding also assumes group membership is available at
 inference, which raises governance questions of its own.
 
-\textbf{External validity.} MovieLens users are not a representative population, and
-gender is a self-reported binary; the audit cannot speak to non-binary users or to
-production traffic, and results should not be generalized without re-auditing.
+\textbf{External validity.} The findings replicate on a second, independent dataset
+(\S\ref{sec:generalization}), but both are MovieLens; generalization to non-movie domains
+remains open, and the scarcity of public rating datasets carrying gender and age is itself
+a limitation. MovieLens users are not a representative population, and gender is a
+self-reported binary; the audit cannot speak to non-binary users or to production traffic,
+and results should not be generalized without re-auditing.
 
 \textbf{Construct validity.} Demographic parity, equal opportunity, and disparate
 impact can conflict \cite{verma2018fairness}; we report all three and do not claim
@@ -408,17 +469,19 @@ disparity but a substantial age disparity hidden beneath a $0.72$ aggregate accu
 removing protected attributes significantly worsened the age gap, and single-attribute
 thresholding closed only the attribute it targeted. We introduced intersectional
 threshold calibration, which closes the gender \emph{and} age gaps together at a
-$0.21$-point accuracy cost, and validated every headline result across eight seeds with
-paired significance tests. Future work includes stronger baselines (gradient-boosted
+$0.21$-point accuracy cost, validated every headline result across eight seeds with
+paired significance tests, and replicated all findings on an independent second dataset
+(MovieLens 100K). Future work includes stronger baselines (gradient-boosted
 trees), regularized intersectional thresholds for many fine-grained strata, in-processing
-fairness constraints, and extending the audit from rating classification to top-$k$
-recommendation.
+fairness constraints, replication beyond the movie domain, and extending the audit from
+rating classification to top-$k$ recommendation.
 
 \section*{Reproducibility}
 All numbers are produced by a single Spark notebook (\texttt{Vortex\_D4\_Fairness.ipynb})
-from the raw MovieLens 1M files, over seeds $\{42,1,7,13,21,99,123,2024\}$, with
+from the raw MovieLens 1M and 100K files, over seeds $\{42,1,7,13,21,99,123,2024\}$, with
 Spark 3.5.3, Java 17, and Python 3.11. The notebook writes the full numeric record
-(\texttt{fairness\_results\_d4.json}, \texttt{fairness\_cross\_seed.csv}) and all figures.
+(\texttt{fairness\_results\_d4.json} and the \texttt{fairness\_cross\_seed*.csv} files) and
+all figures.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}

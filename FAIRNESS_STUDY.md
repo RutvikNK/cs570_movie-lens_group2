@@ -32,6 +32,21 @@ thresholding fixes only the attribute it targets; **intersectional (gender×age)
 thresholding closes both gaps at once** for a small accuracy cost. Every headline claim
 is validated across 8 seeds with paired *t*- and Wilcoxon tests.
 
+## Generalization to MovieLens 100K (independent 1998 dataset)
+Every finding replicates on ML-100K (943 different users, 100k ratings — the only other
+public rating set with gender+age):
+
+| Quantity | ML-1M | ML-100K |
+|---|---|---|
+| Baseline age DPD / DI | 0.145 / 0.80 | **0.161 / 0.76** |
+| Feature-removal age DPD | 0.213 | **0.275** (backfires, *p*=2.5e−8) |
+| Gender-threshold age DPD | 0.145 | 0.161 (no transfer, *p*=0.88) |
+| Intersectional age DPD | 0.003 | **0.005** (*p*=2e−6) |
+| Intersectional gender DPD | 0.001 | 0.001 |
+
+100K's baseline gender gap is near-zero (DPD 0.006), so on both datasets **age**, not
+gender, is the attribute a high-accuracy model quietly under-serves.
+
 ## Reproduce
 Requires Java 17 and a Python 3.11 venv with PySpark + scipy. **Unset `SPARK_HOME`** if a
 Homebrew Spark is installed, or the bundled Spark jars will clash.
