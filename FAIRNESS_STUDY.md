@@ -47,6 +47,13 @@ public rating set with gender+age):
 100K's baseline gender gap is near-zero (DPD 0.006), so on both datasets **age**, not
 gender, is the attribute a high-accuracy model quietly under-serves.
 
+## Model-agnosticism (Gradient-Boosted Trees)
+Repeating the 8-seed protocol with Spark `GBTClassifier` (20 trees, depth 5) instead of
+logistic regression: GBT shows an **even larger** baseline age gap (DI 0.78 on 1M, 0.71 on
+100K), and intersectional calibration again reduces age DPD to ~0.003 (1M, *p*=9e−11) and
+~0.008 (100K, *p*=9e−7) at the same ~0.2pp accuracy cost. The audit finding and the
+mitigation are not artifacts of the linear model.
+
 ## Reproduce
 Requires Java 17 and a Python 3.11 venv with PySpark + scipy. **Unset `SPARK_HOME`** if a
 Homebrew Spark is installed, or the bundled Spark jars will clash.
