@@ -531,11 +531,11 @@ in-processing fairness constraints, replication beyond the movie domain, and ext
 audit from rating classification to top-$k$ recommendation.
 
 \section*{Reproducibility}
-All numbers are produced by a single Spark notebook (\texttt{Vortex\_D4\_Fairness.ipynb})
-from the raw MovieLens 1M and 100K files, over seeds $\{42,1,7,13,21,99,123,2024\}$, with
-Spark 3.5.3, Java 17, and Python 3.11. The notebook writes the full numeric record
-(\texttt{fairness\_results\_d4.json} and the \texttt{fairness\_cross\_seed*.csv} files) and
-all figures.
+Experiments were conducted using Apache Spark 3.5.3, Java 17, and Python 3.11 on the MovieLens 1M and MovieLens 100K datasets. Results were averaged over eight random train/test splits using seeds {42, 1, 7, 13, 21, 99, 123, 2024}. Source code and experimental artifacts are available upon request.
+
+\section*{AI Use Disclosure}
+The authors used a generative artificial intelligence (AI) writing assistant solely to improve the grammar, readability, and language clarity of this manuscript. The AI tool was not used to generate research ideas, design the methodology, perform experiments, analyze data, interpret results, or write the scientific conclusions. All AI-assisted revisions were carefully reviewed and verified by the authors, who take full responsibility for the accuracy and integrity of the manuscript.
+
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}
