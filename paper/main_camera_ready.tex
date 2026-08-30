@@ -103,7 +103,7 @@ once. Every headline claim is validated across eight random splits with paired
 significance tests, so the disparities and the mitigation effects are not single-seed
 artifacts.
 
-\textbf{Contributions.}
+\textit{Contributions.}
 \begin{itemize}
   \item We identify and correct a target-leakage flaw in a common MovieLens
   feature recipe and quantify its (modest but statistically consistent) inflationary
@@ -128,7 +128,7 @@ artifacts.
   (\S\ref{sec:setup}, \S\ref{sec:mitigation}, \S\ref{sec:generalization}).
 \end{itemize}
 
-\textbf{Scope and novelty.} Threshold calibration is standard post-processing and we
+\textit{Scope and novelty.} Threshold calibration is standard post-processing and we
 do not claim it as a new technique. The contribution is the combination it enables,
 which prior work leaves unaddressed (Table~\ref{tab:related}): a leakage-aware
 fairness audit on a \emph{distributed} rating pipeline, an \emph{intersectional}
@@ -140,7 +140,7 @@ is where a disparity must first be measured and corrected; the ranking-level aud
 future work.
 
 \section{Related Work}\label{sec:related}
-\textbf{Fairness definitions.} Dwork et al.\ introduced fairness through awareness
+\textit{Fairness definitions.} Dwork et al.\ introduced fairness through awareness
 \cite{dwork2012fairness}; Hardt et al.\ proposed equalized odds and equal
 opportunity, framing fairness as error-rate parity across groups
 \cite{hardt2016equality}; Feldman et al.\ formalized disparate impact and its
@@ -148,14 +148,14 @@ removal \cite{feldman2015certifying}. Verma and Rubin catalog these often-confli
 definitions \cite{verma2018fairness}. We report demographic parity, equal
 opportunity, and disparate impact together rather than committing to one.
 
-\textbf{Bias in recommendation.} Ekstrand et al.\ show recommender effectiveness and
+\textit{Bias in recommendation.} Ekstrand et al.\ show recommender effectiveness and
 evaluation can differ across demographic groups \cite{ekstrand2018all}, and surveys
 document how bias enters at data, model, and evaluation stages
 \cite{mehrabi2021survey}. Most such work targets ranking or top-$k$ recommendation;
 we audit the upstream rating-classification stage, where disparities originate but
 are rarely measured.
 
-\textbf{Mitigation.} Mitigations are pre-, in-, or post-processing. Kamiran and
+\textit{Mitigation.} Mitigations are pre-, in-, or post-processing. Kamiran and
 Calders study pre-processing via reweighing \cite{kamiran2012data}; Agarwal et al.\
 give an in-processing reduction to cost-sensitive learning \cite{agarwal2018reductions};
 post-processing adjusts decision thresholds per group \cite{hardt2016equality} or
@@ -165,7 +165,7 @@ threshold rules (single-attribute and \emph{intersectional}), all interpretable 
 compatible with a distributed pipeline. Our feature-removal result is a concrete instance
 of the well-known limitation of ``fairness through unawareness'' \cite{dwork2012fairness}.
 
-\textbf{Intersectional fairness.} That fairness can hold marginally yet fail on the
+\textit{Intersectional fairness.} That fairness can hold marginally yet fail on the
 \emph{joint} of protected attributes is well established: Buolamwini and Gebru's
 \emph{Gender Shades} exposed intersectional error disparities \cite{buolamwini2018gender},
 Foulds et al.\ formalized an intersectional fairness definition
@@ -176,7 +176,7 @@ joint attribute cell and, on a distributed rating pipeline, quantify how much it
 over single-attribute post-processing---including a paired-significance demonstration that
 single-attribute calibration does \emph{not} transfer across attributes.
 
-\textbf{Gap we address.} Relative to this body of work (Table~\ref{tab:related}), prior
+\textit{Gap we address.} Relative to this body of work (Table~\ref{tab:related}), prior
 fairness studies rarely combine (i) a distributed big-data engine, (ii) leakage-aware
 evaluation, (iii) intersectional post-processing benchmarked against single-attribute
 calibration with significance tests, and (iv) cross-dataset replication. We address all
@@ -197,7 +197,7 @@ Kamiran--Calders \cite{kamiran2012data}     & --- & --- & --- & --- \\
 Foulds et al.\ \cite{foulds2020intersectional} & --- & --- & \checkmark & --- \\
 Kearns et al.\ \cite{kearns2018gerrymandering} & --- & --- & \checkmark & --- \\
 Ekstrand et al.\ \cite{ekstrand2018all}     & --- & --- & --- & \checkmark \\
-\textbf{This work}                          & \checkmark & \checkmark & \checkmark & \checkmark \\
+\textit{This work}                          & \checkmark & \checkmark & \checkmark & \checkmark \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -271,7 +271,7 @@ accuracy metric is overall accuracy; the primary fairness metric is gender DPD,
 complemented by age DPD, EOD, and DI. We audit gender (two groups) and age (seven
 MovieLens bands). Reported F1 is for the positive class.
 
-\textbf{Cross-seed validation.} To ensure results are not artifacts of one split, we
+\textit{Cross-seed validation.} To ensure results are not artifacts of one split, we
 repeat the entire pipeline---leakage-corrected retraining, audit, and all
 mitigations---over eight independent random 80/20 splits (seeds
 $\{42,1,7,13,21,99,123,2024\}$) and report mean$\pm$standard deviation. For each
@@ -346,7 +346,7 @@ Table~\ref{tab:mitigation} compares the corrected baseline with four mitigations
 comparison, and Table~\ref{tab:significance} reports the cross-seed significance tests
 that back the claims below.
 
-\textbf{Feature removal significantly backfires.} Dropping gender and age from the
+\textit{Feature removal significantly backfires.} Dropping gender and age from the
 feature set did not improve gender parity (DPD $0.036\rightarrow0.042$) and
 \emph{worsened} the age gap (DPD $0.146\rightarrow0.215$, DI $0.80\rightarrow0.72$).
 Across eight seeds the age gap rose from $0.145\pm0.005$ to $0.213\pm0.003$, a paired
@@ -356,7 +356,7 @@ correlated proxies---movie age, genre mix, popularity---through which the model
 reconstructs, and even sharpens, the disparity: a concrete instance of the limits of
 fairness through unawareness \cite{dwork2012fairness}.
 
-\textbf{Single-attribute thresholds work but do not transfer.} Calibrating a per-gender
+\textit{Single-attribute thresholds work but do not transfer.} Calibrating a per-gender
 threshold reduced gender DPD from $0.036$ to $0.003$ (DI $=0.995$) at an accuracy cost of
 under $0.001$, but left the age gap untouched ($0.146\rightarrow0.145$); across seeds the
 gender-threshold age gap is statistically indistinguishable from baseline (H4:
@@ -364,7 +364,7 @@ $p=0.94$, i.e.\ \emph{no} transfer). Symmetrically, an age-only threshold mitiga
 gap ($0.146\rightarrow0.003$) while leaving gender unchanged ($0.037$). Post-processing is
 computationally inexpensive and effective, but only for the attribute it conditions on.
 
-\textbf{Intersectional calibration reduces both gaps at once.} Conditioning the threshold
+\textit{Intersectional calibration reduces both gaps at once.} Conditioning the threshold
 on the joint gender$\times$age cell (14 thresholds) reduced gender DPD to $0.001$
 \emph{and} age DPD to $0.003$ in a single pass. Across eight seeds it drove gender DPD from
 $0.038\pm0.002$ to $0.001\pm0.000$ (H1: $p=3.4\times10^{-10}$) and age DPD from
@@ -379,7 +379,7 @@ calibration achieves this jointly for age as well.
 
 \begin{table}[t]
 \caption{Fairness--accuracy comparison across mitigations (seed 42). Best (lowest) DPD
-per attribute in \textbf{bold}.}
+per attribute is underlined.}
 \label{tab:mitigation}
 \centering
 \setlength{\tabcolsep}{4pt}
@@ -390,8 +390,8 @@ Configuration & Acc. & G-DPD & G-DI & A-DPD & A-DI \\
 Corrected baseline        & $0.719$ & $0.036$ & $0.95$ & $0.146$ & $0.80$ \\
 Feature removal           & $0.719$ & $0.042$ & $0.94$ & $0.215$ & $0.72$ \\
 Gender threshold          & $0.718$ & $0.003$ & $0.99$ & $0.145$ & $0.80$ \\
-Age threshold             & $0.718$ & $0.037$ & $0.95$ & $\mathbf{0.003}$ & $0.99$ \\
-Intersectional threshold  & $0.717$ & $\mathbf{0.001}$ & $1.00$ & $0.003$ & $0.99$ \\
+Age threshold             & $0.718$ & $0.037$ & $0.95$ & $\underline{0.003}$ & $0.99$ \\
+Intersectional threshold  & $0.717$ & $\underline{0.001}$ & $1.00$ & $0.003$ & $0.99$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -508,20 +508,20 @@ gender gap, at the same ${\sim}0.2$-point accuracy cost. The hidden age disparit
 intersectional mitigation are therefore not artifacts of the linear model.
 
 \section{Discussion, Limitations, and Threats to Validity}\label{sec:discussion}
-\textbf{Interpretation.} The audit yields four transferable lessons: (i) a single
+\textit{Interpretation.} The audit yields four transferable lessons: (i) a single
 aggregate metric can be simultaneously acceptable and misleading---here gender looks
 fair while age does not; (ii) removing protected attributes does not reduce measured disparity and
 significantly worsens it via proxies; (iii) lightweight post-processing mitigates a targeted gap
 but does not generalize across attributes; and (iv) conditioning the same post-processing
 on the \emph{joint} attribute cell closes multiple gaps at once for a small accuracy cost.
 
-\textbf{Internal validity.} Every headline result is validated across eight random splits
+\textit{Internal validity.} Every headline result is validated across eight random splits
 with paired $t$- and Wilcoxon tests (\S\ref{sec:mitigation}); the standard deviations are
 small ($\leq0.005$ DPD) and all directional effects are significant at
 $p<10^{-9}$, so they are not seed artifacts. Per-group thresholding also assumes group
 membership is available at inference, which raises governance questions of its own.
 
-\textbf{Scalability.} Intersectional calibration estimates one threshold per attribute
+\textit{Scalability.} Intersectional calibration estimates one threshold per attribute
 cell, so with $d$ attributes of $k$ levels the number of cells---and the number of
 thresholds---grows as $k^{d}$. Two protected attributes give a manageable $14$ cells (the
 smallest with ${\sim}5{,}400$ test rows), but adding income, race, education, and region
@@ -534,7 +534,7 @@ per cell. Our results should therefore be read as evidence for \emph{joint} over
 single-attribute post-processing at low attribute counts, not as a claim of scalability to
 high-dimensional intersections.
 
-\textbf{External validity.} The findings replicate on a second, independent dataset
+\textit{External validity.} The findings replicate on a second, independent dataset
 (\S\ref{sec:generalization}), but both are MovieLens; generalization to non-movie
 domains remains open. MovieLens 1M and 100K are nonetheless the de-facto benchmarks
 for demographic fairness in recommendation \cite{ekstrand2018all}, and public rating
@@ -545,7 +545,7 @@ a representative population, and gender is a self-reported binary; the audit can
 speak to non-binary users or to production traffic, and results should not be
 generalized without re-auditing.
 
-\textbf{Construct validity.} Demographic parity, equal opportunity, and disparate
+\textit{Construct validity.} Demographic parity, equal opportunity, and disparate
 impact can conflict \cite{verma2018fairness}; we report all three and do not claim
 the mitigated model is ``fair'' in an absolute sense---only that specific measured
 gaps change as reported.
