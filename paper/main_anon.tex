@@ -76,8 +76,10 @@ pipeline is deployed at scale, who does it actually serve?}
 Three findings organize the paper. First, the pipeline as originally constructed
 suffered from \emph{target leakage}: user- and movie-average rating features were
 computed over the entire dataset, including the ratings being predicted. Correcting
-this changes accuracy only modestly ($0.723\rightarrow0.719$), but it is a
-precondition for an honest audit. Second, the corrected model's aggregate accuracy
+this changes aggregate accuracy only modestly ($0.723\rightarrow0.719$); what makes
+it necessary is not predictive performance but the integrity of the per-group
+fairness metrics computed afterward, since leaked targets contaminate the same
+selection rates the audit inspects. Second, the corrected model's aggregate accuracy
 of $0.72$ conceals a strong asymmetry between protected attributes: gender disparity
 is mild, whereas age disparity is large and sits at the four-fifths disparate-impact
 threshold. Third, the intuitive mitigation of removing protected attributes fails
@@ -112,6 +114,17 @@ artifacts.
   releasing a reproducible Spark notebook
   (\S\ref{sec:setup}, \S\ref{sec:mitigation}, \S\ref{sec:generalization}).
 \end{itemize}
+
+\textbf{Scope and novelty.} Threshold calibration is standard post-processing and we
+do not claim it as a new technique. The contribution is the combination it enables,
+which prior work leaves unaddressed (Table~\ref{tab:related}): a leakage-aware
+fairness audit on a \emph{distributed} rating pipeline, an \emph{intersectional}
+calibration benchmarked head-to-head against single-attribute calibration with paired
+significance tests, and replication across an independent dataset and a second model
+class. We audit the rating-classification stage rather than top-$k$ ranking because
+score bias at this stage propagates into any ranking built on it, so the classifier
+is where a disparity must first be measured and corrected; the ranking-level audit is
+future work (\S\ref{sec:discussion}).
 
 \section{Related Work}\label{sec:related}
 \textbf{Fairness definitions.} Dwork et al.\ introduced fairness through awareness
@@ -257,9 +270,13 @@ claim is tested two-sided, where non-significance is the expected outcome.
 \subsection{Leakage correction}
 Table~\ref{tab:leakage} reports the leaky and corrected models. Correcting the
 leakage moved accuracy from $0.723$ to $0.719$ and positive-class F1 from $0.773$ to
-$0.770$. The effect is modest---each average aggregates ${\sim}165$ ratings per user,
-so removing one rating barely shifts it---but the correction is methodologically
-necessary and all subsequent results use the corrected model.
+$0.770$. The effect on aggregate metrics is modest---each average aggregates ${\sim}165$
+ratings per user, so removing one rating barely shifts it---and that is precisely why
+the correction matters here: leaked features embed the target in the input, so a
+fairness audit run on the leaky model would report per-group selection rates and
+disparity measures that are partly an evaluation artifact rather than a property of
+the model. Leakage in this setting distorts the \emph{fairness} reading, not the
+headline score. All subsequent results use the corrected model.
 
 \begin{table}[t]
 \caption{Effect of leakage correction (test set, $n=199{,}705$).}
@@ -505,11 +522,15 @@ single-attribute post-processing at low attribute counts, not as a claim of scal
 high-dimensional intersections.
 
 \textbf{External validity.} The findings replicate on a second, independent dataset
-(\S\ref{sec:generalization}), but both are MovieLens; generalization to non-movie domains
-remains open, and the scarcity of public rating datasets carrying gender and age is itself
-a limitation. MovieLens users are not a representative population, and gender is a
-self-reported binary; the audit cannot speak to non-binary users or to production traffic,
-and results should not be generalized without re-auditing.
+(\S\ref{sec:generalization}), but both are MovieLens; generalization to non-movie
+domains remains open. MovieLens 1M and 100K are nonetheless the de-facto benchmarks
+for demographic fairness in recommendation \cite{ekstrand2018all}, and public rating
+datasets that carry self-reported gender and age are scarce because such attributes
+are seldom collected or released for privacy reasons; this constrains cross-domain
+evaluation for the subfield as a whole, not only this study. MovieLens users are not
+a representative population, and gender is a self-reported binary; the audit cannot
+speak to non-binary users or to production traffic, and results should not be
+generalized without re-auditing.
 
 \textbf{Construct validity.} Demographic parity, equal opportunity, and disparate
 impact can conflict \cite{verma2018fairness}; we report all three and do not claim
