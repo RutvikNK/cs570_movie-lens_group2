@@ -5,7 +5,18 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{url}
+\usepackage{fancyhdr}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\fancypagestyle{firstpage}{
+  \fancyhf{}
+  \fancyhead[L]{\small 2026 IEEE International Conference on Optics, Machine Learning and Emerging Technology (OMLET)
+ \\ 29 -- 31 October 2026, Nairobi, Kenya}
+  \fancyfoot[L]{\small 979-8-3195-1287-1/26/\$31.00 \copyright2026 IEEE}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+\pagestyle{plain}
 
 \begin{document}
 
@@ -19,6 +30,7 @@ Fremont, CA, USA \\ csemrm@gmail.com}
 }
 
 \maketitle
+\thispagestyle{firstpage}
 
 \begin{abstract}
 Rating-prediction models are routinely evaluated on aggregate accuracy, which
