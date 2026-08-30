@@ -31,29 +31,29 @@ it to the front of the paper.
 
 ### R1.2 — "The evaluation relies on small public datasets with demographic information."
 
-- **Revised** the *External validity* paragraph (§VII) to note that MovieLens 1M and
+- **Revised** the *External validity* paragraph (§VIII) to note that MovieLens 1M and
   100K are the de-facto benchmarks for demographic fairness in recommendation
   (Ekstrand et al.), and that public rating datasets carrying self-reported gender
   and age are scarce because such attributes are seldom collected or released for
   privacy reasons. This constrains cross-domain evaluation for the subfield as a
   whole, and we now say so explicitly rather than treating it as a one-line caveat.
 - The study already validates every headline result across eight random splits, a
-  second independent dataset (§VI), and a second model class (gradient-boosted
-  trees, §VI-A), which is the strongest form of external check available given the
+  second independent dataset (§VII), and a second model class (gradient-boosted
+  trees, §VII-A), which is the strongest form of external check available given the
   data landscape.
 
 ### R1.3 — "The intersectional calibration method fails to scale with multiple attributes."
 
 We agree, and the manuscript already analyzes this explicitly.
 
-- §VII, *Scalability* paragraph: with `d` attributes of `k` levels the number of
+- §VIII, *Scalability* paragraph: with `d` attributes of `k` levels the number of
   calibrated cells grows as `k^d`; beyond a few attributes per-cell samples shrink
   until quantile estimates become unstable. We explicitly state the results "should
   be read as evidence for *joint* over single-attribute post-processing at low
   attribute counts, **not as a claim of scalability to high-dimensional
   intersections**," and point to subgroup-fairness methods (Kearns et al.) as the
   direction for many attributes.
-- §VIII (Conclusion / Future Work) lists regularized or hierarchical intersectional
+- §IX (Conclusion / Future Work) lists regularized or hierarchical intersectional
   thresholds for many fine-grained strata as the follow-up.
 
 No change required; we note the scope was already bounded in the submitted version.
@@ -83,7 +83,7 @@ This is a deliberate scoping choice, now stated up front.
   disparity must first be measured and corrected.
 - Existing text already frames this (§II, "we audit the upstream
   rating-classification stage, where disparities originate but are rarely measured")
-  and §VIII lists "extending the audit from rating classification to top-`k`
+  and §IX lists "extending the audit from rating classification to top-`k`
   recommendation" as future work.
 
 ---
@@ -103,7 +103,7 @@ We thank the reviewer; no change.
 
 We agree and have strengthened the acknowledgement.
 
-- **Revised** §VII *External validity* (same edit as R1.2): generalization to
+- **Revised** §VIII *External validity* (same edit as R1.2): generalization to
   non-movie domains remains open; we now frame this as a subfield-wide constraint
   driven by the scarcity of demographically labeled public rating data, and we do
   not generalize beyond the audited setting without re-auditing.
@@ -117,7 +117,7 @@ We agree and have strengthened the acknowledgement.
 | §I, after Contributions | New *"Scope and novelty"* paragraph (R1.1, R1.5) |
 | §I, "First …" sentence | Reframed leakage correction around fairness-metric integrity (R1.4) |
 | §V, *Leakage correction* | Added rationale: leakage distorts the fairness reading, not accuracy (R1.4) |
-| §VII, *External validity* | Benchmark justification + subfield-wide data-scarcity framing (R1.2, R2.3) |
+| §VIII, *External validity* | Benchmark justification + subfield-wide data-scarcity framing (R1.2, R2.3) |
 | Back matter | *AI Use Disclosure* section added; *Reproducibility* wording tightened (camera-ready) |
 
 No experimental results, tables, or figures were changed. The manuscript remains 6
