@@ -43,8 +43,8 @@ extending single-attribute post-processing to joint protected groups---to this d
 setting, setting a decision threshold per gender$\times$age cell; it reduces \emph{both} the
 gender and age gaps together (DPD $0.038\rightarrow0.001$ and $0.145\rightarrow0.003$) at
 a $0.21$-point accuracy cost. All headline results are validated across eight random
-splits with paired significance tests, replicate on an independent second dataset
-(MovieLens 100K, age DI $0.76$), and hold for a gradient-boosted-tree classifier as well,
+splits with paired significance tests, replicate on the separately collected MovieLens
+100K dataset (age DI $0.76$), and hold for a gradient-boosted-tree classifier as well,
 confirming the mitigation is model-agnostic. Our findings argue that fairness must be
 measured and mitigated per attribute---jointly, not one at a time---that dropping protected
 features is insufficient, and that leakage-aware evaluation is a precondition for
@@ -109,9 +109,9 @@ artifacts.
   pipeline, and show it reduces both gender and age disparity together at a small accuracy
   cost (\S\ref{sec:mitigation}).
   \item We validate all headline results across eight random splits with paired
-  $t$- and Wilcoxon tests, replicate them on an independent second dataset
-  (MovieLens 100K), and confirm they are model-agnostic using gradient-boosted trees,
-  releasing a reproducible Spark notebook
+  $t$- and Wilcoxon tests, replicate them on the separately collected MovieLens 100K
+  dataset, and confirm they are model-agnostic using gradient-boosted trees, all in a
+  single reproducible Spark implementation
   (\S\ref{sec:setup}, \S\ref{sec:mitigation}, \S\ref{sec:generalization}).
 \end{itemize}
 
@@ -120,11 +120,11 @@ do not claim it as a new technique. The contribution is the combination it enabl
 which prior work leaves unaddressed (Table~\ref{tab:related}): a leakage-aware
 fairness audit on a \emph{distributed} rating pipeline, an \emph{intersectional}
 calibration benchmarked head-to-head against single-attribute calibration with paired
-significance tests, and replication across an independent dataset and a second model
-class. We audit the rating-classification stage rather than top-$k$ ranking because
-score bias at this stage propagates into any ranking built on it, so the classifier
-is where a disparity must first be measured and corrected; the ranking-level audit is
-future work.
+significance tests, and replication across a separately collected dataset and a second
+model class. We audit the rating-classification stage rather than top-$k$ ranking
+because score disparities at this stage can propagate into rankings built from these
+scores, so it is a useful upstream audit point; ranking-level evaluation remains future
+work.
 
 \section{Related Work}\label{sec:related}
 \textit{Fairness definitions.} Dwork et al.\ introduced fairness through awareness
@@ -241,7 +241,9 @@ set (``fairness through unawareness'').
 $g$ defined by one or more protected attributes, choose the decision threshold $t_g$ equal
 to the empirical $(1-\tau)$ quantile of the positive-class score within $g$, where $\tau$
 is the overall target selection rate. By construction $P(\hat y=1\mid g)\approx\tau$ for
-every $g$, driving the selection-rate gap toward zero. When the subgroup is defined by a
+every $g$, driving the selection-rate gap toward zero. The quantiles are estimated on
+the same test split used to report fairness, so the mitigation figures are a best case
+(\S\ref{sec:discussion}). When the subgroup is defined by a
 \emph{single} attribute (gender \emph{or} age), this is standard per-group post-processing
 \cite{hardt2016equality}. Our \emph{intersectional threshold calibration} instead defines
 subgroups by the \emph{joint} gender$\times$age cell (14 cells here), so a single pass
@@ -431,8 +433,8 @@ calibration reaches near-zero DPD at a small accuracy cost.}
 \section{Generalization to a Second Dataset}\label{sec:generalization}
 To test whether the findings are specific to MovieLens 1M, we repeated the entire
 study---leakage-corrected retraining, audit, all mitigations, and the eight-seed
-significance protocol---on \emph{MovieLens 100K}, an independent collection gathered in
-1998 from $943$ different users ($100{,}000$ ratings). It is, to our knowledge, the only
+significance protocol---on \emph{MovieLens 100K}, a separately collected dataset gathered
+in 1998 from $943$ different users ($100{,}000$ ratings). It is, to our knowledge, the only
 other widely used public rating dataset that still ships per-user gender \emph{and} age,
 so it supports the full pipeline including the intersectional method; later MovieLens
 releases omit demographics. We mapped its integer ages into the same seven bands and
@@ -445,7 +447,7 @@ below the 1M value and past the four-fifths line); fairness through unawareness 
 \emph{significantly worsens} it ($0.161\rightarrow0.275$, $p=2.5\times10^{-8}$);
 single-attribute gender thresholding again \emph{does not transfer} to age
 ($p=0.88$); and intersectional calibration again closes \emph{both} gaps (gender
-$\rightarrow0.001$, age $\rightarrow0.005$, $p_{\text{age}}=2\times10^{-6}$) at a
+$\rightarrow0.001$, age $\rightarrow0.005$, $p=2\times10^{-6}$ for age) at a
 $0.2$-point accuracy cost. One difference is instructive: 100K's baseline gender gap is
 already near zero (DPD $0.006$, DI $0.99$), so the gender reduction, though still
 significant ($p=0.011$), is small---there was little gender disparity to remove. This
@@ -502,11 +504,15 @@ significantly worsens it via proxies; (iii) lightweight post-processing mitigate
 but does not generalize across attributes; and (iv) conditioning the same post-processing
 on the \emph{joint} attribute cell closes multiple gaps at once for a small accuracy cost.
 
-\textit{Internal validity.} Every headline result is validated across eight random splits
-with paired $t$- and Wilcoxon tests (\S\ref{sec:mitigation}); the standard deviations are
-small ($\leq0.005$ DPD) and all directional effects are significant at
-$p<10^{-9}$, so they are not seed artifacts. Per-group thresholding also assumes group
-membership is available at inference, which raises governance questions of its own.
+\textit{Internal validity.} Headline results are validated across eight random splits
+(\S\ref{sec:mitigation}): standard deviations are small ($\leq0.005$ DPD), the
+directional effects are significant under the paired $t$-tests ($p<10^{-9}$) and are
+corroborated by the Wilcoxon signed-rank tests ($p=0.004$, the smallest value
+attainable at $n=8$), so they are not seed artifacts. The post-processing thresholds
+are fit on the same test split used to report fairness rather than on a held-out
+calibration set, so the mitigation figures are optimistic; a split-then-freeze protocol
+is left to future work. Per-group thresholding also assumes group membership is
+available at inference, which raises governance questions of its own.
 
 \textit{Scalability.} Intersectional calibration estimates one threshold per attribute
 cell, so with $d$ attributes of $k$ levels the number of cells---and the number of
@@ -521,13 +527,12 @@ per cell. Our results should therefore be read as evidence for \emph{joint} over
 single-attribute post-processing at low attribute counts, not as a claim of scalability to
 high-dimensional intersections.
 
-\textit{External validity.} The findings replicate on a second, independent dataset
-(\S\ref{sec:generalization}), but both are MovieLens; generalization to non-movie
-domains remains open. MovieLens 1M and 100K are nonetheless the de-facto benchmarks
-for demographic fairness in recommendation \cite{ekstrand2018all}, and public rating
-datasets that carry self-reported gender and age are scarce because such attributes
-are seldom collected or released for privacy reasons; this constrains cross-domain
-evaluation for the subfield as a whole, not only this study. MovieLens users are not
+\textit{External validity.} The findings replicate on a second, separately collected
+dataset (\S\ref{sec:generalization}), but both are MovieLens; generalization to
+non-movie domains remains open. MovieLens 1M and 100K are nonetheless the de-facto
+benchmarks for demographic fairness in recommendation \cite{ekstrand2018all}. Public
+rating datasets containing self-reported demographic attributes are scarce, which
+limits opportunities for comparable cross-domain evaluation. MovieLens users are not
 a representative population, and gender is a self-reported binary; the audit cannot
 speak to non-binary users or to production traffic, and results should not be
 generalized without re-auditing.
@@ -542,17 +547,17 @@ We audited a scalable, interpretable rating classifier on MovieLens 1M for
 demographic fairness. After correcting a target-leakage flaw, we found a mild gender
 disparity but a substantial age disparity hidden beneath a $0.72$ aggregate accuracy;
 removing protected attributes significantly worsened the age gap, and single-attribute
-thresholding closed only the attribute it targeted. We introduced intersectional
-threshold calibration, which reduces the gender \emph{and} age gaps together at a
-$0.21$-point accuracy cost, validated every headline result across eight seeds with
-paired significance tests, and showed they hold on an independent second dataset
-(MovieLens 100K) and for a gradient-boosted-tree classifier. Future work includes
+thresholding closed only the attribute it targeted. We adapted threshold calibration
+to intersectional gender$\times$age groups, reducing the gender \emph{and} age gaps
+together at a $0.21$-point accuracy cost, validated every headline result across eight
+seeds with paired significance tests, and showed they hold on the separately collected
+MovieLens 100K dataset and for a gradient-boosted-tree classifier. Future work includes
 regularized or hierarchical intersectional thresholds for many fine-grained strata,
 in-processing fairness constraints, replication beyond the movie domain, and extending the
 audit from rating classification to top-$k$ recommendation.
 
 \section*{Reproducibility}
-Experiments were conducted using Apache Spark 3.5.3, Java 17, and Python 3.11 on the MovieLens 1M and MovieLens 100K datasets. Results were averaged over eight random train/test splits using seeds {42, 1, 7, 13, 21, 99, 123, 2024}. Source code and experimental artifacts are available upon request.
+All results use Apache Spark 3.5.3, Java 17, and Python 3.11 on MovieLens 1M and 100K, averaged over eight train/test splits (seeds $\{42,1,7,13,21,99,123,2024\}$). Source code and experimental artifacts are available upon request.
 
 \section*{AI Use Disclosure}
 The authors used a generative artificial intelligence (AI) writing assistant solely to improve the grammar, readability, and language clarity of this manuscript. The AI tool was not used to generate research ideas, design the methodology, perform experiments, analyze data, interpret results, or write the scientific conclusions. All AI-assisted revisions were carefully reviewed and verified by the authors, who take full responsibility for the accuracy and integrity of the manuscript.

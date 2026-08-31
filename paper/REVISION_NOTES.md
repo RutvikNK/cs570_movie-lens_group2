@@ -44,6 +44,26 @@ Source: <https://ieeeomlet.org/camera-ready> and the OMLET LaTeX template.
 
 ---
 
+## 2b. Second-pass polish (internal review before upload)
+
+Seven wording/technical corrections made after a line-by-line check of the
+camera-ready PDF against the reviewer comments. Applied to both `.tex` files;
+still 6 pages.
+
+| # | Issue | Fix |
+|---|---|---|
+| 1 | Conclusion said "We **introduced** intersectional threshold calibration", contradicting the §I novelty disclaimer | → "We **adapted** threshold calibration to intersectional gender×age groups" |
+| 2 | §VII rendered `p_{\text{age}}=2×10⁻⁶` as "page = 2 × 10⁻⁶" on copy | → bare `p = 2×10⁻⁶ for age`, matching the rest of §VII |
+| 3 | Post-processing thresholds are estimated on the **same test split** used to report fairness (confirmed in `Vortex_D4_Fairness.ipynb`: `threshold_pred(base_pred, …)` takes quantiles of the test-set scores) — not previously disclosed | Added an honest statement in §III-F ("estimated on the same test split … so the mitigation figures are a best case") and a limitation in §VIII Internal validity ("optimistic; a split-then-freeze protocol is left to future work"). **Not** claimed as train/validation-fit, because it isn't. |
+| 4 | "independent second dataset" / "independent collection" overstated vs. R2.3 | → "separately collected MovieLens 100K dataset" throughout (abstract, contributions, §I, §VII, §VIII) |
+| 5 | "score bias … propagates into **any** ranking" was too absolute | → "score disparities … **can propagate into** rankings built from these scores" |
+| 6 | §VIII said "all directional effects are significant at p<10⁻⁹" — that is the t-test; Table V Wilcoxon p-values are 0.004 | → "significant under the paired t-tests (p<10⁻⁹) and corroborated by the Wilcoxon signed-rank tests (p=0.004, the smallest value attainable at n=8)" |
+| 7 | §I "releasing a reproducible Spark **notebook**" vs. §Reproducibility "available upon request" | → §I "a single reproducible Spark **implementation**"; §Reproducibility unchanged (available on request) |
+
+Item 3 is the substantive one: it converts a latent methodological weakness (evaluation-set threshold tuning) into a disclosed limitation with a concrete future-work protocol.
+
+---
+
 ## 3. Submission checklist
 
 Done:
@@ -78,3 +98,5 @@ All merged into `RutvikNK/cs570_movie-lens_group2` `main`:
 | `9960cde` | Remove author-added bold text |
 | `7aec0b1` | Merge PR #12 |
 | `ef51c62` | Merge PR #13 |
+| `ab9b395` | Add REVISION_NOTES.md (merged in PR #14) |
+| _(PR #15)_ | Second-pass polish: 7 reviewer-alignment fixes (§2b) |
